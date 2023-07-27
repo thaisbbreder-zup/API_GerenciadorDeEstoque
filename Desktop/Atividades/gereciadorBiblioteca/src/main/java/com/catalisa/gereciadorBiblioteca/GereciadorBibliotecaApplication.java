@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class GereciadorBibliotecaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GereciadorBibliotecaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GereciadorBibliotecaApplication.class, args);
+    }
 
 }
