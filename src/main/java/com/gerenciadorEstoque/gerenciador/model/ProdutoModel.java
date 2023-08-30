@@ -25,7 +25,7 @@ public class ProdutoModel {
     @Column(length = 80, nullable = false)
     private String descricao;
     @Column(nullable = false)
-    private Double quantidadeEstoque; //esse valor vai atualizar a medida que for saindo produtos
+    private Double quantidadeEstoque;
     @Column(nullable = false)
     private Double precoUnitario;
 }

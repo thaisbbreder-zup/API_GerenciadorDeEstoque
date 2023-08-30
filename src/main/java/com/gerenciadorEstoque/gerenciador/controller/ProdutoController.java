@@ -1,5 +1,6 @@
 package com.gerenciadorEstoque.gerenciador.controller;
 
+import com.gerenciadorEstoque.gerenciador.HandleException.ProdutoNotFoundException;
 import com.gerenciadorEstoque.gerenciador.model.ProdutoModel;
 import com.gerenciadorEstoque.gerenciador.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class ProdutoController {
 
     //cadastra novos produtos
     @PostMapping
-    public ResponseEntity<ProdutoModel> cadastrarProduto(@RequestBody ProdutoModel produtoModel){
+    public ResponseEntity<ProdutoModel> cadastrarProduto(@RequestBody ProdutoModel produtoModel) {
         ProdutoModel novoProduto = produtoService.cadastrarProduto(produtoModel);
         return new ResponseEntity<>(produtoModel, HttpStatus.CREATED);
     }
@@ -50,9 +51,8 @@ public class ProdutoController {
     //exclui produto por id
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletarProdutoPorID(@PathVariable Long id) {
-        produtoService.deletarProduto(id);
+            produtoService.deletarProduto(id);
         return ResponseEntity.ok().body("Produto(a) excluído(a) com sucesso!");
+
     }
-
-
 }
