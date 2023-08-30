@@ -1,4 +1,4 @@
-package com.gerenciadorEstoque.gerenciador.HandleException;
+package com.gerenciadorEstoque.gerenciador.exception;
 
 public class CamposEmBrancoException extends RuntimeException {
     public CamposEmBrancoException() {

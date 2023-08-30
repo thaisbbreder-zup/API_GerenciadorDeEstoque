@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Optional;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -39,6 +39,7 @@ class ProdutoControllerTest {
     @MockBean
     private ProdutoService produtoService;
 
+    //CADASTRAR PRODUTOS CORRETAMENTE
     @Test
     @DisplayName("Cadastrar produto")
     public void testarCadastrarProduto() throws Exception {
@@ -64,7 +65,7 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.quantidadeEstoque").value(10));
     }
 
-
+    //LISTAR TODOS OS PRODUTOS CORRETAMENTE
     @Test
     @DisplayName("Listar produtos")
     public void testarListarTodosProdutos() throws Exception {
@@ -86,7 +87,7 @@ class ProdutoControllerTest {
         produtos.add(produtoModel1);
         produtos.add(produtoModel2);
 
-        when(produtoService.listarTodosProdutos()).thenReturn(produtos);
+        when(produtoService.getAll()).thenReturn(produtos);
 
         mockMvc.perform(get("/produto"))
                 .andExpect(status().isOk())
@@ -101,12 +102,13 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$[1].precoUnitario").value(2.5))
                 .andExpect(jsonPath("$[1].quantidadeEstoque").value(20));
 
-        verify(produtoService, times(1)).listarTodosProdutos();
+        verify(produtoService, times(1)).getAll();
     }
 
+    //BUSCA POR NOME EXISTENTE
     @Test
-    @DisplayName("Buscar produto por ID cadastrado")
-    public void testarBuscarProdutoPorID() throws Exception {
+    @DisplayName("Buscar produto por nome cadastrado")
+    public void testarBuscarProdutoPorNome() throws Exception {
         ProdutoModel produtoModel = new ProdutoModel();
         produtoModel.setId(1L);
         produtoModel.setNome("Shampoo");
@@ -114,7 +116,7 @@ class ProdutoControllerTest {
         produtoModel.setPrecoUnitario(12.99);
         produtoModel.setQuantidadeEstoque(10);
 
-        when(produtoService.buscarProdutoPorId(1L)).thenReturn(Optional.of(produtoModel));
+        when(produtoService.getById(1L)).thenReturn(Optional.of(produtoModel));
 
         mockMvc.perform(get("/produto/{id}", 1))
                 .andExpect(status().isOk())
@@ -125,6 +127,29 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.quantidadeEstoque").value(10));
     }
 
+    //BUSCA POR ID EXISTENTE
+    @Test
+    @DisplayName("Buscar produto por ID cadastrado")
+    public void testarBuscarProdutoPorID() throws Exception {
+        ProdutoModel produtoModel = new ProdutoModel();
+        produtoModel.setId(1L);
+        produtoModel.setNome("Shampoo");
+        produtoModel.setDescricao("Shampoo Elseve para cabelos ondulados");
+        produtoModel.setPrecoUnitario(12.99);
+        produtoModel.setQuantidadeEstoque(10);
+
+        when(produtoService.getById(1L)).thenReturn(Optional.of(produtoModel));
+
+        mockMvc.perform(get("/produto/{id}", 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").value("Shampoo"))
+                .andExpect(jsonPath("$.descricao").value("Shampoo Elseve para cabelos ondulados"))
+                .andExpect(jsonPath("$.precoUnitario").value(12.99))
+                .andExpect(jsonPath("$.quantidadeEstoque").value(10));
+    }
+
+    //ATUALIZA TODOS OS CAMPOS QUANDO ID EXISTE
     @Test
     @DisplayName("Atualizar produto existente")
     public void testarAtualizarProduto() throws Exception {
@@ -152,6 +177,35 @@ class ProdutoControllerTest {
                 .andDo(print());
     }
 
+    // APENAS ALGUNS CAMPOS SERÃO ATUALIZADOS, OS OUTROS PERMANECERAO IGUAIS
+    @Test
+    @DisplayName("Atualizar produto existente")
+    public void testarAtualizarDoisProduto() throws Exception {
+        Long produtoId = 1L;
+
+        ProdutoModel produtoModel = new ProdutoModel();
+        produtoModel.setId(produtoId);
+        produtoModel.setNome("Novo Shampoo");
+        produtoModel.setDescricao("Novo Shampoo Elseve para cabelos ondulados");
+        produtoModel.setPrecoUnitario(15.99);
+        produtoModel.setQuantidadeEstoque(20);
+
+        when(produtoService.atualizarProdutoporId(eq(produtoId), Mockito.any(ProdutoModel.class)))
+                .thenReturn(produtoModel);
+
+        mockMvc.perform(patch("/produto/{id}", produtoId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produtoModel)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(produtoId))
+                .andExpect(jsonPath("$.nome").value("Novo Shampoo"))
+                .andExpect(jsonPath("$.descricao").value("Novo Shampoo Elseve para cabelos ondulados"))
+                .andExpect(jsonPath("$.precoUnitario").value(15.99))
+                .andExpect(jsonPath("$.quantidadeEstoque").value(20))
+                .andDo(print());
+    }
+
+    //DELETA ID EXISTENTE
     @Test
     @DisplayName("Deletar produto existente")
     public void testarDeletarProduto() throws Exception {

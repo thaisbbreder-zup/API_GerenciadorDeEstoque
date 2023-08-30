@@ -1,13 +1,12 @@
 package com.gerenciadorEstoque.gerenciador.service;
 
-import com.gerenciadorEstoque.gerenciador.HandleException.CamposEmBrancoException;
-import com.gerenciadorEstoque.gerenciador.HandleException.ProdutoDeletionException;
-import com.gerenciadorEstoque.gerenciador.HandleException.ProdutoNotFoundException;
+import com.gerenciadorEstoque.gerenciador.exception.CamposEmBrancoException;
+import com.gerenciadorEstoque.gerenciador.exception.NomeNotFoundException;
+import com.gerenciadorEstoque.gerenciador.exception.IdNotFoundException;
 import com.gerenciadorEstoque.gerenciador.model.ProdutoModel;
 import com.gerenciadorEstoque.gerenciador.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +18,7 @@ public class ProdutoService {
     ProdutoRepository produtoRepository;
 
     public ProdutoModel cadastrarProduto(ProdutoModel produtoModel) {
+        //impede cadastro faltando algum dado
         if (produtoModel.getNome() == null || produtoModel.getDescricao() == null ||
                 produtoModel.getQuantidadeEstoque() == null || produtoModel.getPrecoUnitario() == null) {
             throw new CamposEmBrancoException();
@@ -26,15 +26,24 @@ public class ProdutoService {
         return produtoRepository.save(produtoModel);
     }
 
-    public List<ProdutoModel> listarTodosProdutos() {
-        return produtoRepository.findAll();
+    public List<ProdutoModel> getAll() {
+        List<ProdutoModel> produtos = produtoRepository.findAll();
+        return produtos;
     }
 
-    public Optional<ProdutoModel> buscarProdutoPorId(Long id) {
+    public List<ProdutoModel> getByNome(String nome) {
+        List<ProdutoModel> produtos = produtoRepository.findByNome(nome);
+        if (produtos == null) {
+            throw new NomeNotFoundException(nome);
+        }
+        return produtos;
+    }
+
+    public Optional<ProdutoModel> getById(Long id) {
         if (produtoRepository.existsById(id)) {
             return produtoRepository.findById(id);
         } else {
-            throw new ProdutoNotFoundException(id);
+            throw new IdNotFoundException(id);
         }
     }
 
@@ -62,7 +71,7 @@ public class ProdutoService {
 
             return produtoRepository.save(produtoExistente);
         } else {
-            throw new ProdutoNotFoundException(id);
+            throw new IdNotFoundException(id);
         }
     }
 
@@ -70,10 +79,8 @@ public class ProdutoService {
         if (produtoRepository.existsById(id)) {
             produtoRepository.deleteById(id);
         } else {
-            throw new ProdutoDeletionException(id);
+            throw new IdNotFoundException(id);
         }
     }
-
-
 }
 
