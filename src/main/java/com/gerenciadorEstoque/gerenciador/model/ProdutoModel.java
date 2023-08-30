@@ -25,7 +25,7 @@ public class ProdutoModel {
     @Column(length = 80, nullable = false)
     private String descricao;
     @Column(nullable = false)
-    private Double quantidadeEstoque;
+    private Integer quantidadeEstoque;
     @Column(nullable = false)
     private Double precoUnitario;
 }
