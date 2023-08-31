@@ -70,7 +70,7 @@ class ProdutoServiceTest {
         }, "Campos obrigatórios não informados.");
     }
 
-    //CADASTRAR COM VALOR INVALIDO (ESTOQUE OU PRECO MENOR QUE ZERO) => ValorInvalidoException
+    //CADASTRO COM VALOR DO ESTOQUE INVALIDO (MENOR QUE ZERO) => ValorInvalidoException
     @Test
     public void testCadastrarProdutoComEstoqueInvalido() {
         ProdutoModel produtoModel = new ProdutoModel();
@@ -82,6 +82,7 @@ class ProdutoServiceTest {
         assertThrows(ValorInvalidoException.class, () -> produtoService.cadastrarProduto(produtoModel));
     }
 
+    //CADASTRO COM PRECO INVALIDO (MENOR QUE ZERO) => ValorInvalidoException
     @Test
     public void testCadastrarProdutoComPrecoInvalido() {
         ProdutoModel produtoModel = new ProdutoModel();
@@ -164,7 +165,6 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-
     //BUSCAR QUANDO O NOME NAO EXISTE = NomeNotFoundException
     @Test
     @DisplayName("Buscar produtos por nome inexistente")
@@ -181,7 +181,7 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //BUSCAR ID EXISTENTE
+    //BUSCAR QUANDO ID EXISTE
     @Test
     @DisplayName("Buscar produto por ID existente")
     public void testarBuscarProdutoPorIdExistente() {
@@ -210,29 +210,19 @@ class ProdutoServiceTest {
     @Test
     @DisplayName("Buscar produtos por id inexistente")
     public void testarBuscarProdutosPorIdInexistente() {
-        Long id = 999L;
-        ProdutoModel produtoExistente = new ProdutoModel();
-        produtoExistente.setId(id);
-        produtoExistente.setNome("Sabonete");
-        produtoExistente.setDescricao("Sabonete flor de tangerina - Dove");
-        produtoExistente.setQuantidadeEstoque(10);
-        produtoExistente.setPrecoUnitario(3.99);
+        Long idInexistente = 999L;
 
-        when(produtoRepositoryMock.existsById(id)).thenReturn(true);
-        when(produtoRepositoryMock.findById(id)).thenReturn(Optional.of(produtoExistente));
+        when(produtoRepositoryMock.existsById(idInexistente)).thenReturn(false);
 
-        Optional<ProdutoModel> produtoRetornado = produtoService.getById(id);
+        assertThrows(IdNotFoundException.class, () -> produtoService.getById(idInexistente));
 
-        assertTrue(produtoRetornado.isPresent());
-        assertEquals(produtoExistente, produtoRetornado.get());
-
-        verify(produtoRepositoryMock, times(1)).existsById(id);
-        verify(produtoRepositoryMock, times(1)).findById(id);
+        verify(produtoRepositoryMock, times(1)).existsById(idInexistente);
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
+
     //ATUALIZAR QUANDO O ID EXISTE
-    @Test
+/*    @Test
     @DisplayName("Atualizar produtos quando o ID é inexistente")
     public void testarAtualizarProdutosComIdExistente() {
         Long id = 3L;
@@ -247,9 +237,65 @@ class ProdutoServiceTest {
 
         verify(produtoRepositoryMock, times(1)).findById(id);
         verifyNoMoreInteractions(produtoRepositoryMock);
+    }*/
+
+    @Test
+    @DisplayName("Atualizar produto com dados válidos e ID existente")
+    public void testarAtualizarProdutoComDadosValidosEIdExistente() {
+        Long idExistente = 1L;
+
+        ProdutoModel produtoExistente = new ProdutoModel();
+        produtoExistente.setId(idExistente);
+        produtoExistente.setNome("Sabonete");
+        produtoExistente.setDescricao("Sabonete Liquido - Dove");
+        produtoExistente.setQuantidadeEstoque(10);
+        produtoExistente.setPrecoUnitario(5.99);
+
+        ProdutoModel produtoUpdate = new ProdutoModel();
+        produtoUpdate.setNome("Sabonete Liquido");
+        produtoUpdate.setDescricao("Sabonete Liquido flor de cerejeira - Dove");
+        produtoUpdate.setQuantidadeEstoque(15);
+        produtoUpdate.setPrecoUnitario(6.99);
+
+        when(produtoRepositoryMock.findById(idExistente)).thenReturn(Optional.of(produtoExistente));
+
+        ProdutoModel produtoAtualizado = produtoService.atualizarProdutoporId(idExistente, produtoUpdate);
+
+        assertEquals(produtoUpdate, produtoAtualizado);
+
+        verify(produtoRepositoryMock, times(1)).findById(idExistente);
+        verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //ATUALIZAR COM VALOR INVALIDO
+    //ATUALIZAR COM DADOS EM BRANCO/NULO => CamposEmBrancoException
+    @Test
+    public void atualizarComDadosInvalidos() {
+        Long id = 1L;
+        ProdutoModel produtoExistente = new ProdutoModel();
+        produtoExistente.setId(id);
+        produtoExistente.setNome("Sabonete");
+        produtoExistente.setDescricao("Sabonete flor de tangerina - Dove");
+        produtoExistente.setQuantidadeEstoque(10);
+        produtoExistente.setPrecoUnitario(3.99);
+
+        when(produtoRepositoryMock.findById(id)).thenReturn(Optional.of(produtoExistente));
+
+        ProdutoModel produtoUpdate = new ProdutoModel();
+        produtoUpdate.setId(id);
+        produtoUpdate.setNome("");
+        produtoUpdate.setDescricao("Sabonete Liquido flor de tangerina - Dove");
+        produtoUpdate.setQuantidadeEstoque(null);
+        produtoUpdate.setPrecoUnitario(3.99);
+
+        assertThrows(CamposEmBrancoException.class, () -> {
+            produtoService.atualizarProdutoporId(id, produtoUpdate);
+        }, "Campos obrigatórios não informados.");
+
+        verify(produtoRepositoryMock, times(1)).findById(id);
+        verifyNoMoreInteractions(produtoRepositoryMock);
+    }
+
+    //ATUALIZAR COM VALOR INVALIDO (MENOR QUE 0)
     @Test
     public void atualizarComValoresInvalidos() {
         Long id = 1L;
@@ -291,47 +337,18 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //ATUALIZAR COM DADOS EM BRANCO/NULO => CamposEmBrancoException
-    @Test
-    public void atualizarComDadosInvalidos() {
-        Long id = 1L;
-        ProdutoModel produtoExistente = new ProdutoModel();
-        produtoExistente.setId(id);
-        produtoExistente.setNome("Sabonete");
-        produtoExistente.setDescricao("Sabonete flor de tangerina - Dove");
-        produtoExistente.setQuantidadeEstoque(10);
-        produtoExistente.setPrecoUnitario(3.99);
-
-        when(produtoRepositoryMock.findById(id)).thenReturn(Optional.of(produtoExistente));
-
-        ProdutoModel produtoUpdate = new ProdutoModel();
-        produtoUpdate.setId(id);
-        produtoUpdate.setNome("");
-        produtoUpdate.setDescricao("Sabonete Liquido flor de tangerina - Dove");
-        produtoUpdate.setQuantidadeEstoque(null);
-        produtoUpdate.setPrecoUnitario(3.99);
-
-        assertThrows(CamposEmBrancoException.class, () -> {
-            produtoService.atualizarProdutoporId(id, produtoUpdate);
-        }, "Campos obrigatórios não informados.");
-
-        verify(produtoRepositoryMock, times(1)).findById(id);
-        verifyNoMoreInteractions(produtoRepositoryMock);
-    }
-
     //EXCLUIR QUANDO O ID EXISTE
     @Test
-    @DisplayName("Excluir produto por ID inexistente")
+    @DisplayName("Excluir produto por ID existente")
     public void testarExcluirProdutoPorIdExistente() {
         long id = 3L;
 
-        when(produtoRepositoryMock.existsById(id)).thenReturn(false);
+        when(produtoRepositoryMock.existsById(id)).thenReturn(true);
 
-        assertThrows(IdNotFoundException.class, () -> {
-            produtoService.deletarProduto(id);
-        });
+        produtoService.deletarProduto(id);
 
         verify(produtoRepositoryMock, times(1)).existsById(id);
+        verify(produtoRepositoryMock, times(1)).deleteById(id);
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
