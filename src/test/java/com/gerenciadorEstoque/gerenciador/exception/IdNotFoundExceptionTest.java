@@ -10,7 +10,14 @@ class IdNotFoundExceptionTest {
     @Test
     public void testIdNotFoundException() {
         Long id = 123L;
-        IdNotFoundException exception = new IdNotFoundException(id);
-        assertEquals("Não existe produto com o ID: " + id, exception.getMessage());
+
+        Exception exception = assertThrows(IdNotFoundException.class, () -> {
+            throw new IdNotFoundException(id);
+        });
+
+        String expectedMessage = "Produto não encontrado pelo ID: " + id;
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }

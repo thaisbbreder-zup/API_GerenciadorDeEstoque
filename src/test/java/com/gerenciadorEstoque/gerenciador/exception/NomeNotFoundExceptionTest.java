@@ -9,8 +9,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class NomeNotFoundExceptionTest {
     @Test
     public void testNomeNotFoundException() {
-        String nome = "Produto";
-        NomeNotFoundException exception = new NomeNotFoundException(nome);
-        assertEquals("Não existe produto com o nome '" + nome + "'.", exception.getMessage());
+        String nome = "ProdutoXYZ";
+
+        Exception exception = assertThrows(NomeNotFoundException.class, () -> {
+            throw new NomeNotFoundException(nome);
+        });
+
+        String expectedMessage = "Produto não encontrado pelo nome '" + nome + "'.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }

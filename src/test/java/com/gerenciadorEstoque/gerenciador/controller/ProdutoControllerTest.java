@@ -1,6 +1,9 @@
 package com.gerenciadorEstoque.gerenciador.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.gerenciadorEstoque.gerenciador.exception.NomeNotFoundException;
+import com.gerenciadorEstoque.gerenciador.exception.ValorInvalidoException;
 import com.gerenciadorEstoque.gerenciador.model.ProdutoModel;
 import com.gerenciadorEstoque.gerenciador.service.ProdutoService;
 import org.junit.jupiter.api.DisplayName;
@@ -65,6 +68,26 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.quantidadeEstoque").value(10));
     }
 
+    //CADASTRAR CAMPOS EM BRANCO/NULO
+    @Test
+    @DisplayName("Cadastrar produto com campos em branco ou nulos")
+    public void testarCadastrarProdutoComCamposEmBrancoOuNulos() throws Exception {
+        ProdutoModel produtoModel = new ProdutoModel();
+        produtoModel.setId(1L);
+        produtoModel.setNome("");
+        produtoModel.setDescricao(null);
+        produtoModel.setPrecoUnitario(5.0);
+        produtoModel.setQuantidadeEstoque(10);
+
+        mockMvc.perform(post("/produto")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produtoModel)));
+    }
+
+
+    //CADASTRAR PRECO OU QUANTIDADE DE ESTOQUE MENOR QUE ZERO
+
+
     //LISTAR TODOS OS PRODUTOS CORRETAMENTE
     @Test
     @DisplayName("Listar produtos")
@@ -106,7 +129,7 @@ class ProdutoControllerTest {
     }
 
     //BUSCA POR NOME EXISTENTE
-    @Test
+/*    @Test
     @DisplayName("Buscar produto por nome cadastrado")
     public void testarBuscarProdutoPorNome() throws Exception {
         ProdutoModel produtoModel = new ProdutoModel();
@@ -125,6 +148,29 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.descricao").value("Shampoo Elseve para cabelos ondulados"))
                 .andExpect(jsonPath("$.precoUnitario").value(12.99))
                 .andExpect(jsonPath("$.quantidadeEstoque").value(10));
+    }*/
+
+    @Test
+    public void testarBuscarProdutosPorNome() throws Exception {
+        String nomeExistente = "Shampoo";
+        String nomeInexistente = "ProdutoInexistente";
+
+        ProdutoModel produtoExistente = new ProdutoModel();
+        // Preencha os campos do produto existente
+
+        List<ProdutoModel> listaProdutos = new ArrayList<>();
+        listaProdutos.add(produtoExistente);
+
+        when(produtoService.getByNome(nomeExistente)).thenReturn(listaProdutos);
+        when(produtoService.getByNome(nomeInexistente)).thenThrow(new NomeNotFoundException("Não existe produto com o nome '" + nomeInexistente + "'."));
+
+        mockMvc.perform(get("/produto/buscarPorNome/{nome}", nomeExistente))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value(produtoExistente.getNome()));
+
+        mockMvc.perform(get("/produto/buscarPorNome/{nome}", nomeInexistente))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Não existe produto com o nome 'ProdutoInexistente'."));
     }
 
     //BUSCA POR ID EXISTENTE

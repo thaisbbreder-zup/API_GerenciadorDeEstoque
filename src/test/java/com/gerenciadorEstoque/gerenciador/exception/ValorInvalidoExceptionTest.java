@@ -6,14 +6,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class CamposEmBrancoExceptionTest {
+class ValorInvalidoExceptionTest {
+
     @Test
-    public void testCamposEmBrancoException() {
-        Exception exception = assertThrows(CamposEmBrancoException.class, () -> {
-            throw new CamposEmBrancoException();
+    public void testValorInvalidoExceptionMessage() {
+        Exception exception = assertThrows(ValorInvalidoException.class, () -> {
+            throw new ValorInvalidoException();
         });
 
-        String expectedMessage = "Campos obrigatórios não informados.";
+        String expectedMessage = "O valor informado não pode ser menor que zero.";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));

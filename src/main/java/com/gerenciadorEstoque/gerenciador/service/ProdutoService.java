@@ -3,6 +3,7 @@ package com.gerenciadorEstoque.gerenciador.service;
 import com.gerenciadorEstoque.gerenciador.exception.CamposEmBrancoException;
 import com.gerenciadorEstoque.gerenciador.exception.NomeNotFoundException;
 import com.gerenciadorEstoque.gerenciador.exception.IdNotFoundException;
+import com.gerenciadorEstoque.gerenciador.exception.ValorInvalidoException;
 import com.gerenciadorEstoque.gerenciador.model.ProdutoModel;
 import com.gerenciadorEstoque.gerenciador.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,17 @@ public class ProdutoService {
     @Autowired
     ProdutoRepository produtoRepository;
 
-    public ProdutoModel cadastrarProduto(ProdutoModel produtoModel) {
-        //impede cadastro faltando algum dado
-        if (produtoModel.getNome() == null || produtoModel.getDescricao() == null ||
-                produtoModel.getQuantidadeEstoque() == null || produtoModel.getPrecoUnitario() == null) {
+    public ProdutoModel cadastrarProduto(ProdutoModel updateProduto) {
+        // Verifica se algum dado obrigatório está em branco ou nulo
+        if (updateProduto.getNome() == null || updateProduto.getNome().trim().isEmpty() ||
+                updateProduto.getDescricao() == null || updateProduto.getDescricao().trim().isEmpty() ||
+                updateProduto.getQuantidadeEstoque() == null || updateProduto.getPrecoUnitario() == null) {
             throw new CamposEmBrancoException();
+        } else if (updateProduto.getQuantidadeEstoque() < 0 || updateProduto.getPrecoUnitario() < 0) {
+            throw new ValorInvalidoException();
+        } else {
+            return produtoRepository.save(updateProduto);
         }
-        return produtoRepository.save(produtoModel);
     }
 
     public List<ProdutoModel> getAll() {
@@ -51,25 +56,15 @@ public class ProdutoService {
         Optional<ProdutoModel> produtoOptional = produtoRepository.findById(id);
 
         if (produtoOptional.isPresent()) {
-            ProdutoModel produtoExistente = produtoOptional.get();
-
-            if (updateProduto.getNome() != null) {
-                produtoExistente.setNome(updateProduto.getNome());
+            if (updateProduto.getNome() == null || updateProduto.getNome().trim().isEmpty() ||
+                    updateProduto.getDescricao() == null || updateProduto.getDescricao().trim().isEmpty() ||
+                    updateProduto.getQuantidadeEstoque() == null || updateProduto.getPrecoUnitario() == null) {
+                throw new CamposEmBrancoException();
+            } else if (updateProduto.getQuantidadeEstoque() < 0 || updateProduto.getPrecoUnitario() < 0) {
+                throw new ValorInvalidoException();
+            }else{
+                return updateProduto;
             }
-
-            if (updateProduto.getDescricao() != null) {
-                produtoExistente.setDescricao(updateProduto.getDescricao());
-            }
-
-            if (updateProduto.getQuantidadeEstoque() != null) {
-                produtoExistente.setQuantidadeEstoque(updateProduto.getQuantidadeEstoque());
-            }
-
-            if (updateProduto.getPrecoUnitario() != null) {
-                produtoExistente.setPrecoUnitario(updateProduto.getPrecoUnitario());
-            }
-
-            return produtoRepository.save(produtoExistente);
         } else {
             throw new IdNotFoundException(id);
         }

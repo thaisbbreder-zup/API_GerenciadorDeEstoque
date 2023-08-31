@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public class ProdutoController {
 
     //CADASTRA NOVOS PRODUTOS
     @PostMapping
-    public ResponseEntity<ProdutoModel> cadastrarProduto(@RequestBody ProdutoModel produtoModel) {
+    public ResponseEntity<ProdutoModel> cadastrarProduto(@RequestBody @Valid ProdutoModel produtoModel) {
         ProdutoModel novoProduto = produtoService.cadastrarProduto(produtoModel);
         return new ResponseEntity<>(produtoModel, HttpStatus.CREATED);
     }
@@ -33,7 +34,7 @@ public class ProdutoController {
 
     //BUSCA PRODUTOS POR NOME
     @GetMapping("/buscarPorNome/{nome}")
-    public ResponseEntity<List<ProdutoModel>> buscarProdutosPorNome(@PathVariable String nome) {
+    public ResponseEntity<?> buscarProdutosPorNome(@PathVariable String nome) {
         List<ProdutoModel> produto = produtoService.getByNome(nome);
         return ResponseEntity.ok(produto);
     }
@@ -59,4 +60,5 @@ public class ProdutoController {
         return ResponseEntity.ok().body("Produto(a) excluído(a) com sucesso!");
 
     }
+
 }
