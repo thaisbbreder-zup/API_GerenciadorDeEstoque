@@ -45,23 +45,27 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //CADASTRAR FALTANDO CAMPO OBRIGATORIO => CamposEmBrancoException
-    @Test
-    public void cadastrarComDadosNulos() {
-        ProdutoService produtoService = new ProdutoService();
-        ProdutoModel produtoNulo = new ProdutoModel();
-
-        assertThrows(CamposEmBrancoException.class, () -> {
-            produtoService.cadastrarProduto(produtoNulo);
-        }, "Campos obrigatórios não informados.");
-    }
-
+    //CADASTRO FALTANDO CAMPO OBRIGATORIO => CamposEmBrancoException
     @Test
     public void cadastrarComDadosEmBranco() {
         ProdutoService produtoService = new ProdutoService();
         ProdutoModel produtoEmBranco = new ProdutoModel();
         produtoEmBranco.setNome("");
         produtoEmBranco.setDescricao("");
+        produtoEmBranco.setQuantidadeEstoque(null);
+        produtoEmBranco.setPrecoUnitario(null);
+
+        assertThrows(CamposEmBrancoException.class, () -> {
+            produtoService.cadastrarProduto(produtoEmBranco);
+        }, "Campos obrigatórios não informados.");
+    }
+
+    @Test
+    public void cadastrarComDadosNulos() {
+        ProdutoService produtoService = new ProdutoService();
+        ProdutoModel produtoEmBranco = new ProdutoModel();
+        produtoEmBranco.setNome(null);
+        produtoEmBranco.setDescricao(null);
         produtoEmBranco.setQuantidadeEstoque(null);
         produtoEmBranco.setPrecoUnitario(null);
 
@@ -94,7 +98,7 @@ class ProdutoServiceTest {
         assertThrows(ValorInvalidoException.class, () -> produtoService.cadastrarProduto(produtoModel));
     }
 
-    //LISTAR QUANDO HOUVER PRODUTOS CADASTRADOS
+    //LISTA TODOS OS PRODUTOS CADASTRADOS
     @Test
     @DisplayName("Listar quando houver produtos cadastrados")
     public void testarListarQuandoHouverProdutosCadastrados() {
@@ -125,7 +129,7 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //LISTAR QUANDO NAO HOUVER PRODUTOS CADASTRADOS
+    //LISTA QUANDO NAO HOUVER PRODUTOS CADASTRADOS
     @Test
     @DisplayName("Listar quando não houver produtos cadastrados")
     public void testarListarQuandoNaoHouverProdutosCadastrados() {
@@ -139,10 +143,10 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    // BUSCAR QUANDO O NOME EXISTE
+    //LISTA COM FILTRO DE NOME
     @Test
-    @DisplayName("Buscar produtos por nome existente")
-    public void testarBuscarProdutosPorNomeExistente() {
+    @DisplayName("Listar produtos por nome existente")
+    public void testarListarProdutosPorNomeExistente() {
         String nome = "Sabonete";
 
         ProdutoModel produtoExistente = new ProdutoModel();
@@ -165,10 +169,10 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //BUSCAR QUANDO O NOME NAO EXISTE = NomeNotFoundException
+    //LISTA COM FILTRO DE NOME QUANDO O NOME NAO EXISTE = NomeNotFoundException
     @Test
-    @DisplayName("Buscar produtos por nome inexistente")
-    public void testarBuscarProdutosPorNomeInexistente() {
+    @DisplayName("Listar produtos por nome inexistente")
+    public void testarListarProdutosPorNomeInexistente() {
         String nome = "Livro";
 
         when(produtoRepositoryMock.findByNome(nome)).thenReturn(null);
@@ -181,10 +185,10 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //BUSCAR QUANDO ID EXISTE
+    //LISTAR QUANDO ID EXISTE
     @Test
-    @DisplayName("Buscar produto por ID existente")
-    public void testarBuscarProdutoPorIdExistente() {
+    @DisplayName("Listar produto por ID existente")
+    public void testarListarProdutoPorIdExistente() {
         Long id = 1L;
         ProdutoModel produtoExistente = new ProdutoModel();
         produtoExistente.setId(id);
@@ -206,10 +210,10 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-    //BUSCAR QUANDO O ID NAO EXISTE
+    //LISTAR QUANDO O ID NAO EXISTE
     @Test
-    @DisplayName("Buscar produtos por id inexistente")
-    public void testarBuscarProdutosPorIdInexistente() {
+    @DisplayName("Listar produtos por id inexistente")
+    public void testarListarProdutosPorIdInexistente() {
         Long idInexistente = 999L;
 
         when(produtoRepositoryMock.existsById(idInexistente)).thenReturn(false);
@@ -220,25 +224,7 @@ class ProdutoServiceTest {
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
 
-
-    //ATUALIZAR QUANDO O ID EXISTE
-/*    @Test
-    @DisplayName("Atualizar produtos quando o ID é inexistente")
-    public void testarAtualizarProdutosComIdExistente() {
-        Long id = 3L;
-
-        when(produtoRepositoryMock.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(IdNotFoundException.class, () -> {
-            ProdutoModel produtoUpdate = new ProdutoModel();
-            produtoUpdate.setNome("Shampoo Dove");
-            produtoService.atualizarProdutoporId(id, produtoUpdate);
-        });
-
-        verify(produtoRepositoryMock, times(1)).findById(id);
-        verifyNoMoreInteractions(produtoRepositoryMock);
-    }*/
-
+    //ATUALIZAR COM DADOS VALIDOS
     @Test
     @DisplayName("Atualizar produto com dados válidos e ID existente")
     public void testarAtualizarProdutoComDadosValidosEIdExistente() {
@@ -269,7 +255,7 @@ class ProdutoServiceTest {
 
     //ATUALIZAR COM DADOS EM BRANCO/NULO => CamposEmBrancoException
     @Test
-    public void atualizarComDadosInvalidos() {
+    public void atualizarComDadosEmBranco() {
         Long id = 1L;
         ProdutoModel produtoExistente = new ProdutoModel();
         produtoExistente.setId(id);
@@ -283,9 +269,36 @@ class ProdutoServiceTest {
         ProdutoModel produtoUpdate = new ProdutoModel();
         produtoUpdate.setId(id);
         produtoUpdate.setNome("");
-        produtoUpdate.setDescricao("Sabonete Liquido flor de tangerina - Dove");
-        produtoUpdate.setQuantidadeEstoque(null);
+        produtoUpdate.setDescricao("");
+        produtoUpdate.setQuantidadeEstoque(10);
         produtoUpdate.setPrecoUnitario(3.99);
+
+        assertThrows(CamposEmBrancoException.class, () -> {
+            produtoService.atualizarProdutoporId(id, produtoUpdate);
+        }, "Campos obrigatórios não informados.");
+
+        verify(produtoRepositoryMock, times(1)).findById(id);
+        verifyNoMoreInteractions(produtoRepositoryMock);
+    }
+
+    @Test
+    public void atualizarComDadosNulos() {
+        Long id = 1L;
+        ProdutoModel produtoExistente = new ProdutoModel();
+        produtoExistente.setId(id);
+        produtoExistente.setNome("Sabonete");
+        produtoExistente.setDescricao("Sabonete flor de tangerina - Dove");
+        produtoExistente.setQuantidadeEstoque(10);
+        produtoExistente.setPrecoUnitario(3.99);
+
+        when(produtoRepositoryMock.findById(id)).thenReturn(Optional.of(produtoExistente));
+
+        ProdutoModel produtoUpdate = new ProdutoModel();
+        produtoUpdate.setId(id);
+        produtoUpdate.setNome(null);
+        produtoUpdate.setDescricao(null);
+        produtoUpdate.setQuantidadeEstoque(null);
+        produtoUpdate.setPrecoUnitario(null);
 
         assertThrows(CamposEmBrancoException.class, () -> {
             produtoService.atualizarProdutoporId(id, produtoUpdate);
@@ -367,5 +380,4 @@ class ProdutoServiceTest {
         verify(produtoRepositoryMock, times(1)).existsById(id);
         verifyNoMoreInteractions(produtoRepositoryMock);
     }
-
 }

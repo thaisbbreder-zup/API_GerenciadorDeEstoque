@@ -1,9 +1,6 @@
 package com.gerenciadorEstoque.gerenciador.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.gerenciadorEstoque.gerenciador.exception.NomeNotFoundException;
-import com.gerenciadorEstoque.gerenciador.exception.ValorInvalidoException;
 import com.gerenciadorEstoque.gerenciador.model.ProdutoModel;
 import com.gerenciadorEstoque.gerenciador.service.ProdutoService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,9 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -80,17 +74,13 @@ class ProdutoControllerTest {
         produtoModel.setQuantidadeEstoque(10);
 
         mockMvc.perform(post("/produto")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(produtoModel)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(produtoModel)));
     }
-
-
-    //CADASTRAR PRECO OU QUANTIDADE DE ESTOQUE MENOR QUE ZERO
-
 
     //LISTAR TODOS OS PRODUTOS CORRETAMENTE
     @Test
-    @DisplayName("Listar produtos")
+    @DisplayName("Listar produtos sem filtro de nome")
     public void testarListarTodosProdutos() throws Exception {
         ProdutoModel produtoModel1 = new ProdutoModel();
         produtoModel1.setId(1L);
@@ -128,49 +118,46 @@ class ProdutoControllerTest {
         verify(produtoService, times(1)).getAll();
     }
 
-    //BUSCA POR NOME EXISTENTE
-/*    @Test
-    @DisplayName("Buscar produto por nome cadastrado")
-    public void testarBuscarProdutoPorNome() throws Exception {
-        ProdutoModel produtoModel = new ProdutoModel();
-        produtoModel.setId(1L);
-        produtoModel.setNome("Shampoo");
-        produtoModel.setDescricao("Shampoo Elseve para cabelos ondulados");
-        produtoModel.setPrecoUnitario(12.99);
-        produtoModel.setQuantidadeEstoque(10);
-
-        when(produtoService.getById(1L)).thenReturn(Optional.of(produtoModel));
-
-        mockMvc.perform(get("/produto/{id}", 1))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.nome").value("Shampoo"))
-                .andExpect(jsonPath("$.descricao").value("Shampoo Elseve para cabelos ondulados"))
-                .andExpect(jsonPath("$.precoUnitario").value(12.99))
-                .andExpect(jsonPath("$.quantidadeEstoque").value(10));
-    }*/
-
+    //LISTAR COM FILTRO DE NOME
     @Test
-    public void testarBuscarProdutosPorNome() throws Exception {
-        String nomeExistente = "Shampoo";
-        String nomeInexistente = "ProdutoInexistente";
+    @DisplayName("Listar todos os produtos")
+    public void testarListarTodosProdutosComNome() throws Exception {
+        ProdutoModel produtoModel1 = new ProdutoModel();
+        produtoModel1.setId(1L);
+        produtoModel1.setNome("Shampoo");
+        produtoModel1.setDescricao("Shampoo Elseve para cabelos ondulados");
+        produtoModel1.setPrecoUnitario(12.99);
+        produtoModel1.setQuantidadeEstoque(10);
 
-        ProdutoModel produtoExistente = new ProdutoModel();
-        // Preencha os campos do produto existente
+        ProdutoModel produtoModel2 = new ProdutoModel();
+        produtoModel2.setId(2L);
+        produtoModel2.setNome("Sabonete");
+        produtoModel2.setDescricao("Sabonete perfumado");
+        produtoModel2.setPrecoUnitario(2.5);
+        produtoModel2.setQuantidadeEstoque(20);
 
-        List<ProdutoModel> listaProdutos = new ArrayList<>();
-        listaProdutos.add(produtoExistente);
+        List<ProdutoModel> produtos = new ArrayList<>();
+        produtos.add(produtoModel1);
+        produtos.add(produtoModel2);
 
-        when(produtoService.getByNome(nomeExistente)).thenReturn(listaProdutos);
-        when(produtoService.getByNome(nomeInexistente)).thenThrow(new NomeNotFoundException("Não existe produto com o nome '" + nomeInexistente + "'."));
+        when(produtoService.getByNome("Shampoo")).thenReturn(produtos);
 
-        mockMvc.perform(get("/produto/buscarPorNome/{nome}", nomeExistente))
+        mockMvc.perform(get("/produto")
+                        .param("nome", "Shampoo"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].nome").value(produtoExistente.getNome()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].nome").value("Shampoo"))
+                .andExpect(jsonPath("$[0].descricao").value("Shampoo Elseve para cabelos ondulados"))
+                .andExpect(jsonPath("$[0].precoUnitario").value(12.99))
+                .andExpect(jsonPath("$[0].quantidadeEstoque").value(10))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].nome").value("Sabonete"))
+                .andExpect(jsonPath("$[1].descricao").value("Sabonete perfumado"))
+                .andExpect(jsonPath("$[1].precoUnitario").value(2.5))
+                .andExpect(jsonPath("$[1].quantidadeEstoque").value(20));
 
-        mockMvc.perform(get("/produto/buscarPorNome/{nome}", nomeInexistente))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Não existe produto com o nome 'ProdutoInexistente'."));
+        verify(produtoService, times(1)).getByNome("Shampoo");
     }
 
     //BUSCA POR ID EXISTENTE
