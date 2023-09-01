@@ -56,6 +56,17 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+            <scope>compile</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -72,6 +83,35 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version> <!-- Verifique a última versão disponível -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>com/gerenciadorEstoque/gerenciador/**/*</include> <!-- Inclusões -->
+                    </includes>
+                    <excludes>
+                        <exclude>com/gerenciadorEstoque/gerenciador/model/**</exclude> <!-- Exclusões -->
+                    </excludes>
+                </configuration>
+            </plugin>
+
 		</plugins>
 	</build>
 	<repositories>
