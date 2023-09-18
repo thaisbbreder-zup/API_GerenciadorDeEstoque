@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,6 +33,11 @@ public class AnimalService {
         Pageable pageable = PageRequest.of(page, size);
         return animalRepository.findByTamanho(tamanho, pageable);
     }
+
+   /* public Page<AnimalModel> getByDisponibilidade(Boolean disponivelAdocao, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return animalRepository.findByDisponibilidade(disponivelAdocao, pageable);
+    }*/
 
     public Optional<AnimalModel> getById(Long id) {
         return animalRepository.findById(id);

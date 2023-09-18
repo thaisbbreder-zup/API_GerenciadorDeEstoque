@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -39,6 +41,7 @@ public class AnimalController {
     public ResponseEntity<Page<AnimalModel>> listarTodosAnimals(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String tamanho,
+           // @RequestParam(required = false) Boolean disponivelAdocao,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
@@ -48,12 +51,13 @@ public class AnimalController {
             animaisPage = animalService.getByNome(nome, page, size);
         } else if (StringUtils.hasText(tamanho)) {
             animaisPage = animalService.getByTamanho(tamanho, page, size);
+       // } else if (disponivelAdocao != null && disponivelAdocao) {
+       //     animaisPage = animalService.getByDisponibilidade(true, page, size);
         } else {
             animaisPage = animalService.getAll(page, size);
         }
         return ResponseEntity.ok(animaisPage);
     }
-
 
     //BUSCAR POR ID
     @GetMapping(path = "{id}")
@@ -75,5 +79,4 @@ public class AnimalController {
         animalService.deletarAnimal(id);
         return ResponseEntity.ok().body("Animal(a) excluído(a) com sucesso!");
     }
-
 }

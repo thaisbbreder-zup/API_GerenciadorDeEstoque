@@ -31,4 +31,5 @@ public class AnimalModel {
     private String comentario;
     @NotNull(message = "A disponibilidade do animal é obrigatório")
     private boolean disponivelAdocao;
+    //gato ou cachorro
 }
