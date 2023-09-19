@@ -2,21 +2,16 @@ package com.catalisa.gerenciadorAdocao.controller;
 
 import com.catalisa.gerenciadorAdocao.model.AnimalModel;
 import com.catalisa.gerenciadorAdocao.service.AnimalService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.Validator;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 //@Api(value = "AnimalController")
@@ -30,6 +25,7 @@ public class AnimalController {
     private Validator validator;
 
     //CADASTRAR NOVO ANIMAL
+    @ApiOperation(value = "Cadastra um novo animal para ser adotado")
     @PostMapping
     public ResponseEntity<AnimalModel> cadastrarAnimal(@RequestBody @Valid AnimalModel animalModel) {
         AnimalModel novoCadastro = animalService.cadastrarAnimal(animalModel);
@@ -37,6 +33,7 @@ public class AnimalController {
     }
 
     //LISTAR TODOS ANIMAIS E POR NOME , TAMANHO E POR DISPONIVEL
+    @ApiOperation(value = "Lista todos os animais ou busca por filtro de nome ou tamanho")
     @GetMapping
     public ResponseEntity<Page<AnimalModel>> listarTodosAnimals(
             @RequestParam(required = false) String nome,
@@ -60,13 +57,15 @@ public class AnimalController {
     }
 
     //BUSCAR POR ID
+    @ApiOperation(value = "Busca por filtro de id")
     @GetMapping(path = "{id}")
-    public ResponseEntity<AnimalModel> listarAnimalPorId(@PathVariable Long id) {
-        Optional<AnimalModel> animal = animalService.getById(id);
-        return ResponseEntity.ok(animal.get());
+    public ResponseEntity<AnimalModel> buscarAnimalPorId(@PathVariable Long id) {
+        AnimalModel animal = animalService.getById(id);
+        return ResponseEntity.ok(animal);
     }
 
     //ATUALIZAR INFORMACOES
+    @ApiOperation(value = "Atualiza as informações do animal")
     @PatchMapping(path = "{id}")
     public ResponseEntity<AnimalModel> atualizarAnimal(@PathVariable Long id, @RequestBody AnimalModel animalUpdate) {
         AnimalModel atualizarAnimal = animalService.atualizarAnimalPorId(id, animalUpdate);
@@ -74,6 +73,7 @@ public class AnimalController {
     }
 
     //EXCLUIR CADASTRO
+    @ApiOperation(value = "Deleta animal pelo id")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletarAnimalPorID(@PathVariable Long id) {
         animalService.deletarAnimal(id);

@@ -1,4 +1,4 @@
-package com.catalisa.gerenciadorAdocao.exceptionHandler;
+package com.catalisa.gerenciadorAdocao.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

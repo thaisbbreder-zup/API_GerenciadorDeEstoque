@@ -6,13 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface AnimalRepository extends JpaRepository<AnimalModel, Long> {
     Page<AnimalModel> findByNome(String nome, Pageable pageable);
-
     Page<AnimalModel> findByTamanho(String tamanho, Pageable pageable);
-
     //Page<AnimalModel> findByDisponibilidade(boolean disponibilidade, Pageable pageable);
 }

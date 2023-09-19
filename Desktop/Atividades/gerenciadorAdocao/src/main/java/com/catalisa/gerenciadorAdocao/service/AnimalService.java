@@ -1,5 +1,6 @@
 package com.catalisa.gerenciadorAdocao.service;
 
+import com.catalisa.gerenciadorAdocao.exception.AnimalNaoEncontradoException;
 import com.catalisa.gerenciadorAdocao.model.AnimalModel;
 import com.catalisa.gerenciadorAdocao.repository.AnimalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +22,29 @@ public class AnimalService {
 
     public Page<AnimalModel> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return animalRepository.findAll(pageable);
+        Page<AnimalModel> pageResult =  animalRepository.findAll(pageable);
+        if (pageResult.isEmpty()) {
+            throw new AnimalNaoEncontradoException("Nenhum animal cadastrado.");
+        }
+        return pageResult;
     }
 
     public Page<AnimalModel> getByNome(String nome, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return animalRepository.findByNome(nome, pageable);
+        Page<AnimalModel> pageResult = animalRepository.findByNome(nome, pageable);
+        if (pageResult.isEmpty()) {
+            throw new AnimalNaoEncontradoException("Nenhum animal com o nome: " + nome + " foi encontrado.");
+        }
+        return pageResult;
     }
 
     public Page<AnimalModel> getByTamanho(String tamanho, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return animalRepository.findByTamanho(tamanho, pageable);
+        Page<AnimalModel> pageResult = animalRepository.findByTamanho(tamanho, pageable);
+        if (pageResult.isEmpty()) {
+            throw new AnimalNaoEncontradoException("Nenhum animal com o tamanho: " + tamanho + " foi encontrado.");
+        }
+        return pageResult;
     }
 
    /* public Page<AnimalModel> getByDisponibilidade(Boolean disponivelAdocao, int page, int size) {
@@ -39,16 +52,38 @@ public class AnimalService {
         return animalRepository.findByDisponibilidade(disponivelAdocao, pageable);
     }*/
 
-    public Optional<AnimalModel> getById(Long id) {
-        return animalRepository.findById(id);
+    public AnimalModel getById(Long id) {
+        return animalRepository.findById(id)
+                .orElseThrow(() -> new AnimalNaoEncontradoException("Animal com o ID: " + id + " não encontrado."));
     }
 
     public AnimalModel atualizarAnimalPorId(Long id, AnimalModel updateAnimal) {
-        Optional<AnimalModel> animalOptional = animalRepository.findById(id);
-        return updateAnimal;
+         Optional<AnimalModel> animalOptional = animalRepository.findById(id);
+
+        if (animalOptional.isPresent()) {
+            AnimalModel animal = animalOptional.get();
+            /*animal.setNome(updateAnimal.getNome());
+            animal.setIdade(updateAnimal.getIdade());
+            animal.setTamanho(updateAnimal.getTamanho());
+            animal.setSexo(updateAnimal.getSexo());
+            animal.setDescricao(updateAnimal.getDescricao());
+            animal.setComentario(updateAnimal.getComentario());
+            animal.setDisponivelAdocao(updateAnimal.isDisponivelAdocao());*/
+            return animalRepository.save(animal);
+        } else {
+             throw new AnimalNaoEncontradoException("Animal com o ID: " + id + " não encontrado.");
+        }
     }
 
-    public void deletarAnimal(Long id) {
-        animalRepository.deleteById(id);
+
+    public AnimalModel deletarAnimal(Long id) {
+        Optional<AnimalModel> animalOptional = animalRepository.findById(id);
+        if (animalOptional.isPresent()) {
+            AnimalModel animal = animalOptional.get();
+            animalRepository.deleteById(id);
+            return animal;
+        } else {
+            throw new AnimalNaoEncontradoException("Não foi possível deletar. Animal com o ID: " + id + " não foi encontrado.");
+        }
     }
 }
