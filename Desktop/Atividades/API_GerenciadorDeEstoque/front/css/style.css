@@ -1,0 +1,35 @@
+ 
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+#titulo{
+    color:orange;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-style: italic;
+    text-align: center;
+    padding: 30px;
+}
+
+.textoForm{
+    text-align: center;
+}
+
+#formulario {
+    max-width: 700px;  
+    margin: 0 auto;  
+    padding: 20px;
+    border: 1px solid #ccc; 
+}
+
+.form-control, form{
+    max-width: 500px;  
+    margin: 0 auto;  
+        padding: 20px;
+}
+
+ 
+ 

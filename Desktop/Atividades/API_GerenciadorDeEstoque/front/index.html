@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque ZupMercado</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 id="titulo">Zupermercado &#x1F6D2;</h1>
+
+        <!-- Botão para abrir o modal -->
+        <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modalCadastro">
+            Cadastrar Novo Produto
+        </button>
+
+        <!-- Modal de cadastro -->
+        <div class="modal fade" id="modalCadastro" tabindex="-1" aria-labelledby="modalCadastroLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalCadastroLabel">Cadastrar Novo Produto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Formulário de cadastro -->
+                        <form id="produtoFormModal">
+                            <div class="form-group">
+                                <label for="nome" class="form">Nome:</label>
+                                <input type="text" class="form-control" id="nomeModal" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descricao">Descrição:</label>
+                                <input type="text" class="form-control" id="descricaoModal" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantidadeEstoque">Quantidade:</label>
+                                <input type="number" class="form-control" id="quantidadeEstoqueModal" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="preco" class="form">Preço Unitário:</label>
+                                <input type="text" class="form-control" id="precoUnitarioModal" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">Cadastrar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Quantidade</th>
+                    <th>Preço unitário</th>
+                </tr>
+            </thead>
+            <tbody id="produtoTable">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
